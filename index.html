@@ -111,7 +111,7 @@
             font-size: 12px; 
             letter-spacing: 2px; opacity: 0.5; transition: 0.3s; 
         }
-        .menu-item:hover, .menu-item.active { opacity: 1; font-weight: 600; }
+        .menu-item:hover, .menu-items.active { opacity: 1; font-weight: 600; }
 
         /* 4. 主内容 (PC) */
         main {
@@ -168,6 +168,76 @@
             display: flex; align-items: flex-start; 
             width: 100%; gap: 60px;
         }
+
+        /* 隐私声明图标样式 */
+        .privacy-trigger {
+            margin-top: 40px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.5;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .privacy-trigger:hover { opacity: 1; }
+        .privacy-trigger svg { width: 14px; height: 14px; }
+        .privacy-trigger span { font-size: 10px; letter-spacing: 1px; }
+
+        /* 弹窗遮罩层：全屏半透明黑色 */
+        .privacy-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 弹窗内容盒：固定宽度，内部滚动 */
+        .privacy-content {
+            background: #000;
+            border: 0.5px solid rgba(255,255,255,0.2);
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .privacy-scroll-area {
+            overflow-y: auto; /* 允许文字超长时在内部滚动 */
+            text-align: left;
+        }
+
+        .privacy-lang-section h3 {
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .privacy-lang-section p {
+            font-size: 12px;
+            line-height: 1.8;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        /* 关闭按钮 */
+        .privacy-close {
+            margin-top: 30px;
+            background: none;
+            border: 1px solid #444;
+            color: #fff;
+            padding: 10px;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .privacy-close:hover { background: #fff; color: #000; }
+
 /* === 优化后：极简作品切换按钮 (最终版：底部对齐 + 小图标) === */
         .work-switch-btn {
             position: fixed; 

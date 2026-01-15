@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zihan Teng</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="apple-touch-icon" href="favicon.png">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500&display=swap" rel="stylesheet">
+
+    <style>
+        /* ================= CSS 核心样式 ================= */
+        :root {
+            --sidebar-w: 230px;
+            --font-main: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --line-color: rgba(255, 255, 255, 0.2);
+            --bg-black: #000;
+        }
+
+/* ================= 🖱️ 鼠标样式自定义 (强制覆盖版) ================= */
+
+        /* 1. 默认指针：L型直角 (开口向左上) */
+        html, body {
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23FFFFFF' stroke-width='2' d='M18,4H4v14'/%3E%3C/svg%3E"), auto !important;
+        }
+
+        /* 2. 悬停指针：十字准星 (完全取代默认手型) */
+        /* 我们把所有可能触发“手型”的元素都写在这里 */
+        a, 
+        button, 
+        .menu-item, 
+        h1#logo, 
+        .list-row, 
+        .list-row *,   /* 这一行确保列表里的文字也不会变回手型 */
+        .work-switch-btn, 
+        .close-btn, 
+        .dot, 
+        img, 
+        #main-slide,
+        #detail-view,
+        [onclick] {    /* 这一行针对所有带有点击事件的元素 */
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23FFFFFF' stroke-width='2' d='M12,2v20M2,12h20'/%3E%3C/svg%3E") 10 10, crosshair !important;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-black);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 1. 背景容器 */
+        #bg-container {
+            position: fixed; inset: 0; z-index: -1;
+            background: #000;
+        }
+
+        /* 双层背景结构 */
+        .bg-layer {
+            position: absolute; inset: 0;
+            background-size: cover;          
+            background-position: center;     
+            background-repeat: no-repeat;
+            opacity: 0;                      
+            transition: opacity 2.5s ease-in-out, filter 1s ease, transform 1s ease;
+            filter: brightness(0.7);
+            will-change: opacity, transform;
+        }
+
+        .bg-layer.active {
+            opacity: 1;                      
+            z-index: 1;
+        }
+
+        /* 详情模式下的背景模糊效果 */
+        body.detail-mode .bg-layer {
+            filter: blur(20px) brightness(0.5);
+            transform: scale(1.05);
+        }
+
+        /* 2. 入场动画 */
+        #splash {
+            position: fixed; inset: 0; background: transparent; z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 22px; letter-spacing: 8px; font-weight: 300;
+            text-shadow: 0 0 20px rgba(0,0,0,0.8);
+            animation: splashSeq 3.5s forwards; pointer-events: none;
+        }
+        @keyframes splashSeq {
+            0% { opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; }
+        }
+
+        /* 3. 侧边导航栏 (PC) */
+        aside {
+            position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w);
+            padding: 60px 40px; z-index: 1000; 
+            display: flex; flex-direction: column;
+            opacity: 0; animation: fadeInUI 1.5s ease forwards; animation-delay: 2.5s; 
+        }
+        h1#logo { 
+            font-size: 18px; 
+            font-weight: 400; letter-spacing: 1px; 
+            margin-bottom: 80px; cursor: pointer; 
+        }
+        .menu-item { 
+            list-style: none; margin-bottom: 25px; cursor: pointer; 
+            font-size: 12px; 
+            letter-spacing: 2px; opacity: 0.5; transition: 0.3s; 
+        }
+        .menu-item:hover, .menu-item.active { opacity: 1; font-weight: 600; }
+
+        /* 4. 主内容 (PC) */
+        main {
+            margin-left: var(--sidebar-w); min-height: 100vh;
+            padding: 60px 80px 60px 20px;
+            transition: opacity 0.5s;
+            opacity: 0; animation: fadeInUI 1.5s ease forwards; animation-delay: 2.8s;
+        }
+        @keyframes fadeInUI { to { opacity: 1; } }
+
+        .list-container { max-width: 800px; }
+        .list-row { border-bottom: 0.5px solid var(--line-color); padding: 25px 0; transition: 0.3s; }
+        .list-row:first-child { padding-top: 0; border-top: none; }
+        
+        .list-row h2 { 
+            font-size: 18px; 
+            font-weight: 700; cursor: pointer; letter-spacing: 0.5px; 
+        }
+        .list-row p { 
+            font-size: 13px; 
+            opacity: 0.7; margin-top: 8px; font-weight: 300; 
+        }
+        
+        .news-detail-box { 
+            max-height: 0; overflow: hidden; transition: max-height 0.6s ease; 
+            font-size: 13px; 
+            opacity: 0.7; font-weight: 300; line-height: 1.8; 
+        }
+        .news-detail-box.open { max-height: 500px; margin-top: 15px; }
+
+        /* 5. 详情页浮层 (PC) */
+        #detail-view {
+            display: none; position: fixed; inset: 0 0 0 var(--sidebar-w); 
+            z-index: 500; padding: 60px 80px 60px 20px; overflow-y: auto;
+        }
+
+        .detail-layout { 
+            position: relative; 
+            display: flex; flex-direction: column; 
+            max-width: 1400px; 
+            pointer-events: none; 
+        }
+
+        .detail-title {
+            width: 100%;
+            font-size: 20px; 
+            font-weight: 700;
+            margin-bottom: 30px; 
+            margin-top: 0;
+            pointer-events: auto;
+        }
+
+        .detail-content-row {
+            display: flex; align-items: flex-start; 
+            width: 100%; gap: 60px;
+        }
+/* === 优化后：极简作品切换按钮 (最终版：底部对齐 + 小图标) === */
+        .work-switch-btn {
+            position: fixed; 
+            /* 统一固定在底部 */
+            bottom: 40px;       
+            top: auto;
+            transform: none;
+            
+            width: 80px; height: 60px; 
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; /* 这里的指针会被下面的自定义鼠标样式覆盖 */
+            z-index: 1000; 
+            opacity: 0.3; 
+            transition: all 0.4s ease;
+            color: #fff;
+            mix-blend-mode: difference; 
+        }
+
+        .work-switch-btn:hover { 
+            opacity: 1; 
+            transform: scale(1.1); 
+        }
+        
+        /* 图标线条样式：保持 38px 小尺寸 */
+        .work-switch-btn svg { 
+            width: 38px;  
+            height: 38px; 
+            stroke-width: 1px; 
+            fill: none;
+            stroke: currentColor;
+        }
+
+        /* --- PC端位置布局 --- */
+        
+        /* 上一篇 (左侧)：放在文字内容的左下侧 */
+        .work-prev { 
+            /* 距离左边 270px (避开侧边栏) */
+            left: 240px; 
+            justify-content: flex-start; 
+        } 
+        
+        /* 下一篇 (右侧)：放在屏幕右下角 */
+        .work-next { 
+            right: 60px; 
+            justify-content: flex-end; 
+        }
+
+        /* ================= 📱 手机端位置优化 ================= */
+        @media (max-width: 768px) {
+            .work-switch-btn {
+                bottom: 20px; 
+                width: 60px; height: 60px;
+                opacity: 0.6; 
+            }
+            .work-prev { left: 10px; justify-content: center; }
+            .work-next { right: 10px; justify-content: center; }
+            
+            /* 手机上图标再小一号 */
+            .work-switch-btn svg { width: 28px; height: 28px; }
+            header {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: auto;
+                    background: #000; /* 确保导航栏背景不透明，遮挡下方滚动的内容 */
+                    z-index: 2000;
+                    padding: 20px;
+                    box-sizing: border-box;
+                }
+
+                #logo {
+                    margin-bottom: 20px !important; /* 缩小 Logo 下方间距 */
+                }
+
+                /* 内容区域向下移动，避免被固定的导航栏遮挡 */
+                #app, .center-page {
+                    margin-top: 30px; /* 根据你导航栏的实际高度调整 */
+                    padding-bottom: 10px;
+                }
+        }
+
+        .text-col, .media-col { pointer-events: auto; }
+
+        .text-col { 
+            flex: 0 0 45%; max-width: 45%; 
+            display: flex; flex-direction: column; 
+            padding-top: 0; 
+            max-height: calc(85vh - 120px);
+            overflow-y: auto;
+            padding-right: 30px;
+            scrollbar-width: thin; 
+            scrollbar-color: rgba(255,255,255,0.3) transparent;
+        }
+        .text-col::-webkit-scrollbar { width: 4px; }
+        .text-col::-webkit-scrollbar-track { background: transparent; }
+        .text-col::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
+        
+        .text-col .intro { 
+            font-size: 13px; 
+            font-style: italic; opacity: 0.6; margin-bottom: 40px; display: block; 
+        }
+        
+        .text-col .concept { 
+            font-family: 'DM Sans', sans-serif; 
+            font-size: 13px; 
+            line-height: 1.6; 
+            opacity: 0.9; 
+            text-align: justify; white-space: pre-line; font-weight: 300; 
+        }
+
+        .media-col {
+            flex: 1; min-width: 0; 
+            position: sticky; top: 0;
+            display: flex; flex-direction: column; align-items: center;
+            padding-top: 10px; 
+        }
+        
+        .media-wrapper { 
+            position: relative; display: flex; flex-direction: column; align-items: center; 
+            max-width: 100%; width: 100%;
+        }
+        
+        .img-box { position: relative; display: inline-block; line-height: 0; max-width: 100%; }
+
+        .media-col img {
+            width: auto; max-width: 100%; 
+            height: auto; max-height: calc(85vh - 120px); 
+            object-fit: contain; box-shadow: 0 0 60px rgba(0,0,0,0.5);
+            cursor: zoom-in; transition: opacity 0.5s ease; display: block; margin: 0 auto;
+            -webkit-user-drag: none; user-drag: none;
+        }
+
+        /* 轮播图圆点 */
+        .slider-dots { display: flex; justify-content: center; gap: 12px; margin-top: 20px; width: 100%; }
+        .dot { width: 6px; height: 6px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }
+        .dot:hover { background: rgba(255, 255, 255, 0.6); }
+        .dot.active { background: #fff; transform: scale(1.4); }
+
+        /* PC端 轮播控制 */
+        .slider-controls-row { position: absolute; inset: 0; pointer-events: none; display: flex; justify-content: space-between; align-items: center; }
+        .nav-btn { pointer-events: auto; width: 50px; height: 100%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: opacity 0.3s; }
+        .nav-btn:hover { opacity: 1; }
+        .nav-prev { background: linear-gradient(to right, rgba(0,0,0,0.5), transparent); }
+        .nav-next { background: linear-gradient(to left, rgba(0,0,0,0.5), transparent); }
+        .nav-btn svg { width: 40px; height: 40px; stroke: #fff; stroke-width: 1; filter: drop-shadow(0 0 5px rgba(0,0,0,0.8)); }
+
+        /* PC端 关闭按钮 */
+        .close-btn { position: fixed; right: 50px; top: 50px; z-index: 2000; width: 32px; height: 32px; border: 1px solid rgba(255,255,255,0.7); border-radius: 50%; cursor: pointer; transition: all 0.4s ease; display: flex; align-items: center; justify-content: center; }
+        .btn-holes { fill: #fff; opacity: 1; transform: scale(1); transition: 0.3s; position: absolute; }
+        .btn-cross { stroke: #fff; stroke-width: 1.5; opacity: 0; transform: scale(0.5); transition: 0.3s; position: absolute; }
+        .close-btn:hover { border-color: #fff; transform: rotate(90deg); }
+        .close-btn:hover .btn-holes { opacity: 0; transform: scale(0.5); }
+        .close-btn:hover .btn-cross { opacity: 1; transform: scale(0.6); }
+
+        /* Lightbox */
+        #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; justify-content: center; align-items: center; }
+        #lightbox img { max-width: 90%; max-height: 90%; box-shadow: 0 0 80px rgba(0,0,0,0.8); transition: opacity 0.3s ease; -webkit-user-drag: none; user-drag: none; cursor: zoom-out; }
+        .lb-nav { position: absolute; top: 0; bottom: 0; width: 100px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 3010; opacity: 0; transition: opacity 0.3s; }
+        .lb-nav:hover { opacity: 1; }
+        .lb-prev { left: 0; background: linear-gradient(to right, rgba(0,0,0,0.6), transparent); }
+        .lb-next { right: 0; background: linear-gradient(to left, rgba(0,0,0,0.6), transparent); }
+        .lb-nav svg { width: 50px; height: 50px; stroke: #fff; stroke-width: 1; }
+        
+        .center-page { 
+            display: flex; justify-content: center; align-items: center; min-height: 80vh; text-align: center; 
+            font-size: 15px; 
+            line-height: 2.2; 
+        }
+
+
+        /* ================= 📱 手机端专属优化 (Mobile) ================= */
+        @media (max-width: 768px) {
+            
+            aside { 
+                position: relative; width: 100%; height: auto;
+                padding: 30px 20px 10px 20px; align-items: center; 
+                background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+                opacity: 0; animation: fadeInUI 1.5s ease forwards; animation-delay: 2.5s; 
+            }
+            h1#logo { 
+                font-size: 18px; 
+                margin-bottom: 20px; letter-spacing: 2px; text-align: center; 
+            }
+            nav ul { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+            .menu-item { 
+                margin-bottom: 0; 
+                font-size: 11px; 
+            }
+
+            main { 
+                margin-left: 0; padding: 10px 20px 80px 20px; 
+                opacity: 0; animation: fadeInUI 1.5s ease forwards; animation-delay: 2.8s;
+            }
+
+            #detail-view { 
+                margin-left: 0; inset: 0; 
+                padding: 120px 20px 40px 20px; 
+                background: transparent; 
+            }
+            .detail-layout { flex-direction: column; gap: 30px; }
+            .detail-content-row { flex-direction: column; gap: 30px; }
+
+            .media-col { position: static; width: 100%; padding-top: 0; order: 0; }
+            .media-col img { max-height: 50vh; width: 100%; }
+
+            .slider-controls-row { display: none !important; }
+            .lb-nav { display: none !important; }
+            .close-btn { display: none !important; }
+            .dot { width: 7px; height: 7px; gap: 15px; }
+
+            .text-col { 
+                width: 100%; max-width: 100%; flex: 1; 
+                padding-right: 0; order: 1; 
+                max-height: none; overflow-y: visible; 
+            }
+            
+            .detail-title { 
+                text-align: center; 
+                font-size: 20px; 
+                margin-bottom: 20px; 
+            }
+            .intro { text-align: center; margin-bottom: 30px; }
+
+            #splash { display: flex; font-size: 16px; letter-spacing: 4px; } 
+            
+            #lightbox img { cursor: default; }
+        }
+    
+    </style>
+</head>
+<body>
+
+    <div id="splash">Zihan Teng</div>
+    
+    <div id="bg-container">
+        <div id="bg-layer-1" class="bg-layer active"></div>
+        <div id="bg-layer-2" class="bg-layer"></div>
+    </div>
+
+    <aside>
+        <h1 id="logo" onclick="showNews()">Zihan Teng</h1>
+        <nav>
+            <ul>
+                <li class="menu-item" id="nav-news" onclick="showNews()">NEWS</li>
+                <li class="menu-item" id="nav-works" onclick="showWorksList()">WORKS</li>
+                <li class="menu-item" id="nav-about" onclick="showAbout()">ABOUT</li>
+                <li class="menu-item" id="nav-contact" onclick="showContact()">CONTACT</li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main id="app"></main>
+
+    <div id="detail-view"></div>
+    
+    <div id="lightbox" onclick="closeLightbox(event)">
+        <div class="lb-nav lb-prev" onclick="changeLightboxSlide(-1); event.stopPropagation();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </div>
+        <div class="lb-nav lb-next" onclick="changeLightboxSlide(1); event.stopPropagation();">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+        <img src="" id="lightbox-img" onclick="handleLightboxImageClick(event)">
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+
+</body>
+</html>

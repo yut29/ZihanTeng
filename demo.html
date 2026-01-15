@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>10款极简纯黑鼠标 Demo</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f4;
+            --text-color: #1a1a1a;
+        }
+
+        body {
+            margin: 0; padding: 40px;
+            background: var(--bg-color);
+            font-family: "Helvetica Neue", sans-serif;
+            display: flex; flex-wrap: wrap; gap: 20px;
+            justify-content: center;
+        }
+
+        .card {
+            width: 260px; height: 180px;
+            background: #fff;
+            border: 1px solid #ddd;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: all 0.3s ease;
+            text-align: center; padding: 20px;
+        }
+
+        .card:hover { border-color: #000; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+
+        h3 { font-size: 14px; margin-bottom: 10px; color: #888; letter-spacing: 1px; }
+        p { font-size: 12px; color: #aaa; margin: 0; }
+
+        /* ================= 10款鼠标核心代码 ================= */
+
+        /* 01. 经典极细小箭头 */
+        .c1 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M7,2l12,11l-5,1l3,6l-2,1l-3-6l-5,4V2z'/%3E%3C/svg%3E"), auto; }
+
+        /* 02. 极简十字准星 */
+        .c2 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='1.5' d='M12,4v16M4,12h16'/%3E%3C/svg%3E"), auto; }
+
+        /* 03. 微型圆点 (最推荐，艺术感最强) */
+        .c3 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 10 10'%3E%3Ccircle cx='5' cy='5' r='4' fill='%23000'/%3E%3C/svg%3E") 4 4, auto; }
+
+        /* 04. 极细垂直线 (像排版软件) */
+        .c4 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='20' viewBox='0 0 8 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' d='M4,2v20'/%3E%3C/svg%3E"), auto; }
+
+        /* 05. 现代小手 (去掉了指关节) */
+        .c5 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M10,2l5,14l-3,1l2,5l-2,1l-2-5l-4,3V2z'/%3E%3C/svg%3E"), pointer; }
+
+        /* 06. 极简L型直角 */
+        .c6 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' d='M4,4h10v10'/%3E%3C/svg%3E"), auto; }
+
+        /* 07. 菱形指针 */
+        .c7 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24'%3E%3Cpath fill='%23000' d='M12,2L22,12L12,22L2,12Z'/%3E%3C/svg%3E"), auto; }
+
+        /* 08. 极细空心圆 (类似相机对焦) */
+        .c8 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='8' fill='none' stroke='%23000' stroke-width='1.5'/%3E%3C/svg%3E") 10 10, auto; }
+
+        /* 09. 45度斜线 */
+        .c9 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' d='M4,20L20,4'/%3E%3C/svg%3E"), auto; }
+
+        /* 10. 极简实心方块 */
+        .c10 { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Crect width='10' height='10' fill='%23000'/%3E%3C/svg%3E") 5 5, auto; }
+
+    </style>
+</head>
+<body>
+
+    <div class="card c1"><h3>01. Classic Mini</h3><p>极细经典小箭头</p></div>
+    <div class="card c2"><h3>02. Crosshair</h3><p>极简准星</p></div>
+    <div class="card c3"><h3>03. Dot</h3><p>微型圆点 (画廊风格)</p></div>
+    <div class="card c4"><h3>04. Thin Beam</h3><p>极细垂直线</p></div>
+    <div class="card c5"><h3>05. Minimal Hand</h3><p>现代感小手</p></div>
+    <div class="card c6"><h3>06. Angle</h3><p>直角指针</p></div>
+    <div class="card c7"><h3>07. Diamond</h3><p>菱形</p></div>
+    <div class="card c8"><h3>08. Hollow Circle</h3><p>空心圆 (对焦感)</p></div>
+    <div class="card c9"><h3>09. Slash</h3><p>45度斜杠</p></div>
+    <div class="card c10"><h3>10. Square</h3><p>微型方块</p></div>
+
+</body>
+</html>

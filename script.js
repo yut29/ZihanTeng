@@ -344,18 +344,37 @@ function goToSlide(id, index) {
     updateSlideView(work);
 }
 
+/* ================= 优化后的图片切换逻辑 (解决 DOM 冲突) ================= */
+
 function updateSlideView(work) {
     const img = document.getElementById('main-slide');
     if(!img) return;
-    img.style.opacity = 0.5;
+
+    // 1. 先触发淡出动画
+    img.style.opacity = "0";
+
+    // 2. 等待淡出动画完成 (约 300ms) 后再操作 DOM
     setTimeout(() => {
-        img.src = work.images[currentSlideIdx];
-        img.onload = () => { img.style.opacity = 1; };
-    }, 300);
+        const nextSrc = work.images[currentSlideIdx];
+        
+        // 3. 预加载下一张图片，确保替换时已经就绪
+        const tempImg = new Image();
+        tempImg.src = nextSrc;
+        
+        tempImg.onload = () => {
+            img.src = nextSrc; // 此时修改 src，用户看不见（因为 opacity 为 0）
+            
+            // 4. 图片加载并赋值后，再触发淡入
+            requestAnimationFrame(() => {
+                img.style.opacity = "1";
+            });
+        };
+    }, 300); 
+
+    // 更新圆点状态
     const dots = document.querySelectorAll('.dot');
     dots.forEach((dot, idx) => {
-        if (idx === currentSlideIdx) dot.classList.add('active');
-        else dot.classList.remove('active');
+        dot.classList.toggle('active', idx === currentSlideIdx);
     });
 }
 
@@ -430,11 +449,11 @@ function showContact() {
                     <div class="privacy-lang-section">
                         <h3>Datenschutzerklärung</h3>
                         <p><strong>1. Verantwortliche Person</strong><br>
-                        Zihan Teng, Künstler*in<br>E-Mail: info@zihanteng.com</p>
+                        Zihan Teng, Künstler<br>E-Mail: zihantengstudio@gmail.com</p>
                         <p><strong>2. Zugriffsdaten</strong><br>Beim Besuch werden Server-Logfiles (IP, Browser) automatisch erfasst. Diese sind technisch notwendig.</p>
                         <p><strong>3. Kontaktaufnahme</strong><br>Per E-Mail gesendete Daten werden nur zur Bearbeitung Ihrer Anfrage gespeichert.</p>
                         <p><strong>4. Externe Links</strong><br>Keine Verantwortung für Datenschutzpraktiken externer Links (z.B. Instagram).</p>
-                        <p><strong>5. Ihre Rechte</strong><br>Recht auf Auskunft, Berichtigung oder Löschung unter info@zihanteng.com.</p>
+                        <p><strong>5. Ihre Rechte</strong><br>Recht auf Auskunft, Berichtigung oder Löschung unter zihantengstudio@gmail.com.</p>
                     </div>
 
                     <hr style="border:0; border-top:1px solid #333; margin: 30px 0;">
@@ -442,7 +461,7 @@ function showContact() {
                     <div class="privacy-lang-section">
                         <h3>Privacy Policy</h3>
                         <p><strong>1. Data Controller</strong><br>
-                        Zihan Teng, Artist<br>Email: info@zihanteng.com</p>
+                        Zihan Teng, Artist<br>Email: zihantengstudio@gmail.com</p>
                         <p><strong>2. Data Collection</strong><br>Technical info (IP, browser) is collected automatically for security purposes.</p>
                         <p><strong>3. Contact</strong><br>Data sent via email is used solely to process your request.</p>
                         <p><strong>4. External Links</strong><br>Not responsible for external platforms like Instagram.</p>

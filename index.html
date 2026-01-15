@@ -377,7 +377,44 @@
             -webkit-user-drag: none; user-drag: none;
             will-change: opacity; /* 告诉浏览器优化透明度动画 */
         }
+        /* 让联系人容器变成垂直排列，并居中 */
+        .contact-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
 
+        /* 底部区域：包括名字和隐私政策 */
+        .contact-footer {
+            margin-top: 60px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px; /* 名字和图标之间的间距 */
+        }
+
+        /* 名字那行字的样式 */
+        .credits-line {
+            font-size: 10px;
+            letter-spacing: 1px;
+            opacity: 0.6; /* 淡淡的灰色，不显眼 */
+            text-transform: uppercase;
+        }
+
+        /* 隐私政策图标按钮 */
+        .privacy-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.3;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .privacy-trigger:hover {
+            opacity: 0.8; /* 鼠标悬停变亮 */
+        }
         /* 轮播图圆点 */
         .slider-dots { display: flex; justify-content: center; gap: 12px; margin-top: 20px; width: 100%; }
         .dot { width: 6px; height: 6px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; cursor: pointer; transition: all 0.3s ease; }

@@ -425,7 +425,7 @@ function showContact() {
     exitDetailMode(); clearActive();
     document.getElementById('nav-contact').classList.add('active');
     
-    // 隐私保护的小盾牌图标
+    // 隐私声明的小盾牌图标
     const shieldIcon = `
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
@@ -434,11 +434,17 @@ function showContact() {
     document.getElementById('app').innerHTML = `
         <div class="center-page">
             <div class="contact-container">
-                ${getText(siteData.contact)}
+                <div class="contact-info">
+                    ${getText(siteData.contact)}
+                </div>
                 
-                <div class="privacy-trigger" onclick="togglePrivacy(true)">
-                    ${shieldIcon}
-                    <span>Datenschutzerklärung / Privacy Policy</span>
+                <div class="contact-footer">
+                    <div class="credits-line">Design & Code: YutongLiu0129@gmail.com</div>
+                    
+                    <div class="privacy-trigger" onclick="togglePrivacy(true)">
+                        ${shieldIcon}
+                        <span>Datenschutzerklärung / Privacy Policy</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -448,24 +454,20 @@ function showContact() {
                 <div class="privacy-scroll-area">
                     <div class="privacy-lang-section">
                         <h3>Datenschutzerklärung</h3>
-                        <p><strong>1. Verantwortliche Person</strong><br>
-                        Zihan Teng, Künstler<br>E-Mail: zihantengstudio@gmail.com</p>
-                        <p><strong>2. Zugriffsdaten</strong><br>Beim Besuch werden Server-Logfiles (IP, Browser) automatisch erfasst. Diese sind technisch notwendig.</p>
+                        <p><strong>1. Verantwortliche Person</strong><br>Zihan Teng, Künstler*in<br>E-Mail: info@zihanteng.com</p>
+                        <p><strong>2. Zugriffsdaten</strong><br>Beim Besuch werden Server-Logfiles (IP, Browser) automatisch erfasst.</p>
                         <p><strong>3. Kontaktaufnahme</strong><br>Per E-Mail gesendete Daten werden nur zur Bearbeitung Ihrer Anfrage gespeichert.</p>
-                        <p><strong>4. Externe Links</strong><br>Keine Verantwortung für Datenschutzpraktiken externer Links (z.B. Instagram).</p>
-                        <p><strong>5. Ihre Rechte</strong><br>Recht auf Auskunft, Berichtigung oder Löschung unter zihantengstudio@gmail.com.</p>
+                        <p><strong>4. Externe Links</strong><br>Keine Verantwortung für Datenschutzpraktiken externer Links.</p>
+                        <p><strong>5. Ihre Rechte</strong><br>Recht auf Auskunft, Berichtigung oder Löschung unter info@zihanteng.com.</p>
                     </div>
-
                     <hr style="border:0; border-top:1px solid #333; margin: 30px 0;">
-
                     <div class="privacy-lang-section">
                         <h3>Privacy Policy</h3>
-                        <p><strong>1. Data Controller</strong><br>
-                        Zihan Teng, Artist<br>Email: zihantengstudio@gmail.com</p>
+                        <p><strong>1. Data Controller</strong><br>Zihan Teng, Artist<br>Email: info@zihanteng.com</p>
                         <p><strong>2. Data Collection</strong><br>Technical info (IP, browser) is collected automatically for security purposes.</p>
                         <p><strong>3. Contact</strong><br>Data sent via email is used solely to process your request.</p>
                         <p><strong>4. External Links</strong><br>Not responsible for external platforms like Instagram.</p>
-                        <p><strong>5. Your Rights</strong><br>Right to access, correct, or delete personal data.</p>
+                        <p><strong>5. Your Rights</strong><br>You have the right to request access to, correction, or deletion of your personal data.</p>
                     </div>
                 </div>
                 <button class="privacy-close" onclick="togglePrivacy(false)">CLOSE</button>

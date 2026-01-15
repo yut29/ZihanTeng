@@ -5,9 +5,9 @@ const siteData = {
     backgrounds: [
         "selectedphoto/bg1.JPG",
         "selectedphoto/bg2.JPG",
-        "selectedphoto/bg3.JPG",
         "selectedphoto/bg4.JPG",
-        "selectedphoto/bg5.JPG",
+        "selectedphoto/bg3.jpg",
+        "selectedphoto/bg5.jpg",
         "selectedphoto/bg6.JPG",
         "selectedphoto/bg7.JPG",
         "selectedphoto/bg8.JPG",

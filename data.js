@@ -251,8 +251,8 @@ const siteData = {
             intro: "2023 <br> Grease, ceramics, cotton cloth",
             concept: "",
             images: [
-                "selectedphoto/volatility1.jpg",
-                "selectedphoto/volatility2.JPG"
+                "selectedphoto/volatility1.JPG",
+                "selectedphoto/volatility2.jpg"
             ]
         },
         {

@@ -10,7 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500&display=swap" rel="stylesheet">
-
+    <link rel="apple-touch-icon" href="favicon.png">
+    
     <style>
         /* ================= CSS 核心样式 ================= */
         :root {
@@ -391,14 +392,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px; /* 名字和图标之间的间距 */
+            gap: 1px; /* 名字和图标之间的间距 */
         }
 
         /* 名字那行字的样式 */
         .credits-line {
             font-size: 10px;
             letter-spacing: 1px;
-            opacity: 0.6; /* 淡淡的灰色，不显眼 */
+            opacity: 0.4; /* 淡淡的灰色，不显眼 */
             text-transform: uppercase;
         }
 
@@ -406,10 +407,12 @@
         .privacy-trigger {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 3px;
             opacity: 0.3;
             cursor: pointer;
             transition: 0.3s;
+            margin-top: 0 !important; 
+            padding-top: 0 !important;
         }
 
         .privacy-trigger:hover {
@@ -510,7 +513,10 @@
             
             #lightbox img { cursor: default; }
         }
-    
+        .menu-item:hover, .menu-item.active { 
+        opacity: 1 !important; 
+        font-weight: 600 !important; 
+        }
     </style>
 </head>
 <body>

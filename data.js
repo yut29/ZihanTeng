@@ -41,7 +41,13 @@ const siteData = {
                 "selectedphoto/luoye13.JPG",
                 "selectedphoto/luoye14.JPG",
                 "selectedphoto/luoye15.JPG",
-                "selectedphoto/luoye16.JPG"
+                "selectedphoto/luoye16.JPG",
+                "selectedphoto/luoye17.JPG",
+                "selectedphoto/luoye18.JPG",
+                "selectedphoto/luoye19.JPG",
+                "selectedphoto/luoye20.JPG",
+                "selectedphoto/luoye21.JPG",
+                "selectedphoto/luoye22.JPG"
             ]
         },
         {

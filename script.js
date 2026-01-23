@@ -1,17 +1,15 @@
-/* ================= JS 逻辑核心 (完整终极版) ================= */
+/* ================= JS 逻辑核心 (完整版 + 网址路由) ================= */
 
-let bgTimer = null;           // 背景轮播定时器
-let slideTimer = null;        // 作品详情轮播定时器
-let bgIdx = 0;                // 当前背景图索引
-let currentSlideIdx = 0;      // 作品详情图索引
-let currentLbWorkId = null;   // 灯箱当前作品ID
-let currentLbIndex = 0;       // 灯箱当前图片索引
-let activeLayerNum = 1;       // 当前显示的背景层 (1 or 2)
-
-// 当前正在查看的作品 ID (用于左右切换)
+let bgTimer = null;           
+let slideTimer = null;        
+let bgIdx = 0;                
+let currentSlideIdx = 0;      
+let currentLbWorkId = null;   
+let currentLbIndex = 0;       
+let activeLayerNum = 1;       
 let currentViewingWorkId = null;
 
-// 【核心工具】自动识别文字或多语言对象
+// 工具函数：获取文字
 function getText(content) {
     if (!content) return "";
     if (typeof content === 'string') return content;
@@ -20,6 +18,57 @@ function getText(content) {
     }
     return "";
 }
+
+/* ================= 核心：URL 路由管理 (新功能) ================= */
+
+// 1. 更新浏览器地址栏，不刷新页面
+function updateUrl(type, id = null) {
+    let newUrl = window.location.pathname;
+    const params = new URLSearchParams();
+
+    if (type === 'work' && id) {
+        params.set('work', id);
+    } else if (type && type !== 'news') {
+        params.set('page', type);
+    } 
+    // 如果是 news，保持纯净域名 (不带参数)
+
+    const queryString = params.toString();
+    if (queryString) {
+        newUrl += `?${queryString}`;
+    }
+
+    // 推送历史记录 (这样按浏览器的“后退”按钮才有用)
+    window.history.pushState({ type, id }, "", newUrl);
+}
+
+// 2. 根据 URL 参数决定显示什么页面 (用于刷新或直接打开链接时)
+function handleRouting() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const workId = urlParams.get('work');
+    const page = urlParams.get('page');
+
+    if (workId) {
+        // 如果链接里有作品ID，直接打开作品
+        showWorkDetail(workId, false); // false = 不要再推历史记录了，因为已经在这里了
+    } else if (page === 'works') {
+        showWorksList(false);
+    } else if (page === 'about') {
+        showAbout(false);
+    } else if (page === 'contact') {
+        showContact(false);
+    } else {
+        // 默认显示 News
+        showNews(false);
+    }
+}
+
+// 3. 监听浏览器“后退/前进”按钮
+window.onpopstate = function(event) {
+    handleRouting();
+};
+
+/* ================= 初始化逻辑 ================= */
 
 window.onload = () => {
     // 检查数据源
@@ -30,24 +79,23 @@ window.onload = () => {
     
     initFirstBackground();
     startBackgroundTimer();
-    
-    // 延迟加载新闻，配合开场动画
-    setTimeout(() => { showNews(); }, 2500);
-    
     initLightboxSwipe(); 
+
+    // 延迟加载，配合开场动画
+    setTimeout(() => { 
+        // 【关键】页面加载完成后，根据 URL 决定显示哪个页面
+        handleRouting(); 
+    }, 2500);
 };
 
-/* ================= 1. 背景轮播逻辑 (防闪烁版) ================= */
+/* ================= 1. 背景轮播逻辑 ================= */
 
 function initFirstBackground() {
     if(!siteData.backgrounds || siteData.backgrounds.length === 0) return;
-    
     const layer1 = document.getElementById('bg-layer-1');
     layer1.style.backgroundImage = `url('${siteData.backgrounds[0]}')`;
     layer1.classList.add('active');
-    
-    activeLayerNum = 1;
-    bgIdx = 0; 
+    activeLayerNum = 1; bgIdx = 0; 
 }
 
 function startBackgroundTimer() {
@@ -57,39 +105,26 @@ function startBackgroundTimer() {
 
 function playNextBackground() {
     if(!siteData.backgrounds || siteData.backgrounds.length <= 1) return;
-
     const nextIdx = (bgIdx + 1) % siteData.backgrounds.length;
     const nextImgUrl = siteData.backgrounds[nextIdx];
-
     const activeLayer = document.getElementById(`bg-layer-${activeLayerNum}`);
     const nextLayerNum = activeLayerNum === 1 ? 2 : 1;
     const nextLayer = document.getElementById(`bg-layer-${nextLayerNum}`);
 
-    // 预加载图片
     const imgLoader = new Image();
     imgLoader.src = nextImgUrl;
-    
     imgLoader.onload = () => {
-        // 图片下载完成后才切换，杜绝闪烁
         nextLayer.style.backgroundImage = `url('${nextImgUrl}')`;
         nextLayer.classList.add('active');
         activeLayer.classList.remove('active');
-        
         activeLayerNum = nextLayerNum;
         bgIdx = nextIdx; 
     };
-
-    imgLoader.onerror = () => {
-        // 如果图片坏了，跳过索引继续
-        bgIdx = nextIdx; 
-    };
+    imgLoader.onerror = () => { bgIdx = nextIdx; };
 }
 
 function stopBackgroundTimer() {
-    if (bgTimer) {
-        clearInterval(bgTimer);
-        bgTimer = null;
-    }
+    if (bgTimer) { clearInterval(bgTimer); bgTimer = null; }
 }
 
 /* ================= 2. 页面状态管理 ================= */
@@ -112,8 +147,6 @@ function exitDetailMode() {
     }, 50);
 
     if(slideTimer) clearInterval(slideTimer);
-    
-    // 恢复背景轮播
     startBackgroundTimer();
     currentViewingWorkId = null;
 }
@@ -124,15 +157,15 @@ function clearActive() {
 
 /* ================= 3. 内容渲染 (News, Works) ================= */
 
-function showNews() {
+function showNews(updateHistory = true) {
+    if(updateHistory) updateUrl('news');
+    
     exitDetailMode(); clearActive();
     document.getElementById('nav-news').classList.add('active');
     
     let html = `<div class="list-container">`;
     (siteData.news || []).forEach((n, i) => {
-        const rawDetail = getText(n.details);
-        const detailText = rawDetail.replace(/\n/g, '<br>');
-        
+        const detailText = getText(n.details).replace(/\n/g, '<br>');
         html += `
         <div class="list-row">
             <h2 onclick="toggleNews(${i})">${getText(n.title)}</h2>
@@ -148,7 +181,9 @@ function toggleNews(i) {
     if(el) el.classList.toggle('open');
 }
 
-function showWorksList() {
+function showWorksList(updateHistory = true) {
+    if(updateHistory) updateUrl('works');
+
     exitDetailMode(); clearActive();
     document.getElementById('nav-works').classList.add('active');
     
@@ -163,13 +198,10 @@ function showWorksList() {
 
 function switchWork(direction) {
     if (!currentViewingWorkId) return;
-    
     const works = siteData.works || [];
     const currentIndex = works.findIndex(w => w.id === currentViewingWorkId);
-    
     if (currentIndex === -1) return;
 
-    // 计算下一个索引 (循环播放)
     let newIndex = currentIndex + direction;
     if (newIndex >= works.length) newIndex = 0;
     if (newIndex < 0) newIndex = works.length - 1;
@@ -177,13 +209,14 @@ function switchWork(direction) {
     showWorkDetail(works[newIndex].id);
 }
 
-function showWorkDetail(id) {
+function showWorkDetail(id, updateHistory = true) {
     const work = siteData.works.find(w => w.id === id);
     if(!work) return;
 
-    currentViewingWorkId = id;
+    // 【关键】更新 URL，例如变成 zihanteng.com/?work=riss
+    if(updateHistory) updateUrl('work', id);
 
-    // 清理旧定时器
+    currentViewingWorkId = id;
     if (slideTimer) { clearInterval(slideTimer); slideTimer = null; }
 
     enterDetailMode(); 
@@ -203,16 +236,10 @@ function showWorkDetail(id) {
     const intro = getText(work.intro);
     const concept = getText(work.concept);
     
-    // 图标 SVG 定义
     const prevIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square"><polyline points="15 18 9 12 15 6"></polyline></svg>`;
     const nextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
-    
-    const closeButtonIcon = `
-        <svg class="btn-holes" viewBox="0 0 24 24"><circle cx="9" cy="9" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/></svg>
-        <svg class="btn-cross" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    `;
+    const closeButtonIcon = `<svg class="btn-holes" viewBox="0 0 24 24"><circle cx="9" cy="9" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/></svg><svg class="btn-cross" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-    // 图片处理
     const hasImages = work.images && work.images.length > 0;
     const mainImgSrc = hasImages ? work.images[0] : '';
     let dotsHtml = '';
@@ -225,12 +252,7 @@ function showWorkDetail(id) {
         });
         dotsHtml += '</div>';
 
-        controlsHtml = `
-            <div class="slider-controls-row">
-                <div class="nav-btn nav-prev" onclick="changeSlide('${id}', -1)">${prevIcon}</div>
-                <div class="nav-btn nav-next" onclick="changeSlide('${id}', 1)">${nextIcon}</div>
-            </div>
-        `;
+        controlsHtml = `<div class="slider-controls-row"><div class="nav-btn nav-prev" onclick="changeSlide('${id}', -1)">${prevIcon}</div><div class="nav-btn nav-next" onclick="changeSlide('${id}', 1)">${nextIcon}</div></div>`;
     }
 
     const imageHtml = hasImages ? `
@@ -240,29 +262,18 @@ function showWorkDetail(id) {
                 ${controlsHtml}
             </div>
             ${dotsHtml}
-        </div>
-    ` : '';
+        </div>` : '';
 
-    // 渲染详情页 HTML (含长尾箭头切换按钮)
     overlay.innerHTML = `
         <div class="close-btn" onclick="showWorksList()">
             ${closeButtonIcon}
         </div>
-
         <div class="work-switch-btn work-prev" onclick="switchWork(-1)" title="Previous Work">
-            <svg viewBox="0 0 50 50">
-                <line x1="45" y1="25" x2="5" y2="25"></line>
-                <polyline points="15 15 5 25 15 35"></polyline>
-            </svg>
+            <svg viewBox="0 0 50 50"><line x1="45" y1="25" x2="5" y2="25"></line><polyline points="15 15 5 25 15 35"></polyline></svg>
         </div>
-
         <div class="work-switch-btn work-next" onclick="switchWork(1)" title="Next Work">
-            <svg viewBox="0 0 50 50">
-                <line x1="5" y1="25" x2="45" y2="25"></line>
-                <polyline points="35 15 45 25 35 35"></polyline>
-            </svg>
+            <svg viewBox="0 0 50 50"><line x1="5" y1="25" x2="45" y2="25"></line><polyline points="35 15 45 25 35 35"></polyline></svg>
         </div>
-
         <div class="detail-layout">
             <h2 class="detail-title">${name}</h2>
             <div class="detail-content-row">
@@ -270,12 +281,9 @@ function showWorkDetail(id) {
                     <span class="intro">${intro}</span>
                     <div class="concept">${concept}</div>
                 </div>
-                <div class="media-col">
-                    ${imageHtml}
-                </div>
+                <div class="media-col">${imageHtml}</div>
             </div>
-        </div>
-    `;
+        </div>`;
 
     if(hasImages && work.images.length > 1) {
         slideTimer = setInterval(() => changeSlide(id, 1), 3000);
@@ -287,10 +295,7 @@ function showWorkDetail(id) {
 
 function handleLightboxImageClick(e) {
     if (window.innerWidth <= 768) {
-        const width = window.innerWidth;
-        const clickX = e.clientX;
-        if (clickX < width / 2) changeLightboxSlide(-1);
-        else changeLightboxSlide(1);
+        if (e.clientX < window.innerWidth / 2) changeLightboxSlide(-1); else changeLightboxSlide(1);
         e.stopPropagation(); 
     } else {
         document.getElementById('lightbox').style.display = 'none';
@@ -344,34 +349,25 @@ function goToSlide(id, index) {
     updateSlideView(work);
 }
 
-/* ================= 优化后的图片切换逻辑 (解决 DOM 冲突) ================= */
-
 function updateSlideView(work) {
     const img = document.getElementById('main-slide');
     if(!img) return;
-
-    // 1. 先触发淡出动画
+    
+    // 淡出
     img.style.opacity = "0";
-
-    // 2. 等待淡出动画完成 (约 300ms) 后再操作 DOM
+    
     setTimeout(() => {
         const nextSrc = work.images[currentSlideIdx];
-        
-        // 3. 预加载下一张图片，确保替换时已经就绪
         const tempImg = new Image();
         tempImg.src = nextSrc;
         
         tempImg.onload = () => {
-            img.src = nextSrc; // 此时修改 src，用户看不见（因为 opacity 为 0）
-            
-            // 4. 图片加载并赋值后，再触发淡入
-            requestAnimationFrame(() => {
-                img.style.opacity = "1";
-            });
+            img.src = nextSrc; 
+            // 淡入
+            requestAnimationFrame(() => { img.style.opacity = "1"; });
         };
     }, 300); 
-
-    // 更新圆点状态
+    
     const dots = document.querySelectorAll('.dot');
     dots.forEach((dot, idx) => {
         dot.classList.toggle('active', idx === currentSlideIdx);
@@ -407,11 +403,11 @@ function closeLightbox(e) {
 
 /* ================= 6. About & Contact ================= */
 
-function showAbout() {
+function showAbout(updateHistory = true) {
+    if(updateHistory) updateUrl('about');
+
     exitDetailMode(); clearActive();
     document.getElementById('nav-about').classList.add('active');
-    
-    // 双层结构解决 Flex 布局下加粗标签错位问题
     document.getElementById('app').innerHTML = `
         <div class="center-page">
             <div style="max-width:800px; margin:0 auto; text-align: left; width: 100%;">
@@ -421,34 +417,26 @@ function showAbout() {
     `;
 }
 
-function showContact() {
+function showContact(updateHistory = true) {
+    if(updateHistory) updateUrl('contact');
+
     exitDetailMode(); clearActive();
     document.getElementById('nav-contact').classList.add('active');
     
-    // 隐私声明的小盾牌图标
-    const shieldIcon = `
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        </svg>`;
+    const shieldIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`;
 
     document.getElementById('app').innerHTML = `
         <div class="center-page">
             <div class="contact-container">
-                <div class="contact-info">
-                    ${getText(siteData.contact)}
-                </div>
-                
+                <div class="contact-info">${getText(siteData.contact)}</div>
                 <div class="contact-footer">
                     <div class="credits-line">Design & Code: YutongLiu0129@gmail.com</div>
-                    
                     <div class="privacy-trigger" onclick="togglePrivacy(true)">
-                        ${shieldIcon}
-                        <span>Datenschutzerklärung / Privacy Policy</span>
+                        ${shieldIcon}<span>Datenschutzerklärung / Privacy Policy</span>
                     </div>
                 </div>
             </div>
         </div>
-
         <div id="privacy-overlay" class="privacy-overlay" onclick="togglePrivacy(false)">
             <div class="privacy-content" onclick="event.stopPropagation()">
                 <div class="privacy-scroll-area">
@@ -476,11 +464,9 @@ function showContact() {
     `;
 }
 
-// 控制弹窗显示和隐藏的逻辑
 function togglePrivacy(show) {
     const overlay = document.getElementById('privacy-overlay');
     if (!overlay) return;
     overlay.style.display = show ? 'flex' : 'none';
-    // 弹窗出现时，禁止底层页面滚动（手机端体验优化）
     document.body.style.overflow = show ? 'hidden' : '';
 }

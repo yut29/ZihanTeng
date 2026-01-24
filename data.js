@@ -42,12 +42,12 @@ const siteData = {
                 "selectedphoto/luoye14.JPG",
                 "selectedphoto/luoye15.JPG",
                 "selectedphoto/luoye16.JPG",
-                "selectedphoto/luoye17.JPG",
-                "selectedphoto/luoye18.JPG",
-                "selectedphoto/luoye19.JPG",
-                "selectedphoto/luoye20.JPG",
-                "selectedphoto/luoye21.JPG",
-                "selectedphoto/luoye22.JPG"
+                "selectedphoto/luoye17.jpg",
+                "selectedphoto/luoye18.jpg",
+                "selectedphoto/luoye19.jpg",
+                "selectedphoto/luoye20.jpg",
+                "selectedphoto/luoye21.jpg",
+                "selectedphoto/luoye22.jpg"
             ]
         },
         {

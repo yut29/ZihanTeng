@@ -89,11 +89,14 @@ function mouseDragged() {
   }
 }
 
+let canvasTouchActive = false;
+
 function touchMoved() {
-  if (touches.length > 0) {
+  if (canvasTouchActive && touches.length > 0) {
     input?.setMouse(touches[0].x, touches[0].y);
+    return false;
   }
-  return false;
+  return true;
 }
 
 function mouseOut() {
@@ -137,17 +140,24 @@ function mouseClicked() {
 }
 
 function touchStarted() {
-  if (touches.length > 0) {
+  if (touches.length > 0 && isInsideCanvas(touches[0].x, touches[0].y)) {
+    canvasTouchActive = true;
     sound?.ensure();
     input?.setMouseDown(true);
     input?.setMouse(touches[0].x, touches[0].y);
+    return false;
   }
-  return false;
+  canvasTouchActive = false;
+  return true;
 }
 
 function touchEnded() {
-  input?.setMouseDown(false);
-  return false;
+  if (canvasTouchActive) {
+    canvasTouchActive = false;
+    input?.setMouseDown(false);
+    return false;
+  }
+  return true;
 }
 
 function windowResized() {

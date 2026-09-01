@@ -91,7 +91,7 @@ class PointerInput {
     this.mediaPipeHand = null;
     this.lastHand = null;
     this.mode = "mouse";
-    this.statusElement.textContent = "Camera turned off. Move the mouse to test — press 1–0 to simulate 1–10 fingers.";
+    this.statusElement.textContent = "Camera off — move the mouse or touch to leave a trace.";
   }
 
   handleHandResults(results) {

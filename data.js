@@ -5,6 +5,7 @@ const allesWirdWolkeConcept = "Während meines einmonatigen Artist-in-Residence-
 const siteData = {
     // 背景图片列表
     backgrounds: [
+        "selectedphoto/backgrounds/bg-00.webp",
         "selectedphoto/backgrounds/bg-01.webp",
         "selectedphoto/backgrounds/bg-02.webp",
         "selectedphoto/backgrounds/bg-03.webp",

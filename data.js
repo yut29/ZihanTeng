@@ -1,5 +1,7 @@
 /* 在这里更新你的网站内容 */
 
+const allesWirdWolkeConcept = "Während meines einmonatigen Artist-in-Residence-Aufenthalts in der Kunsthalle Kleinschönach habe ich mich mit der Fragilität von Materie und dem Verhältnis zwischen Verschwinden und Existenz beschäftigt.<br><br>Meine Arbeit besteht aus leichten, transluzenten Materialien, die im Laufe der Zeit brechen, zerfallen und sich in kleine Fragmente auflösen. Ich versuche immer wieder, die entstandenen Bruchstellen zu reparieren, kann den Zerfall jedoch nicht wirklich aufhalten. Das Reparieren wird so zu einer Handlung zwischen Festhalten und Loslassen.<br><br>Für mich ist die Wolke nicht nur eine visuelle Erscheinung, sondern auch ein wandelbarer Materiezustand zwischen Sichtbarkeit und Unsichtbarkeit. Alles wird Wolke verweist sowohl auf das unvermeidliche Vergehen als auch auf die Möglichkeiten, die in der Veränderung liegen.";
+
 const siteData = {
     // 背景图片列表
     backgrounds: [
@@ -20,6 +22,70 @@ const siteData = {
 
     // 作品列表
     works: [
+        {
+            id: "alles-wird-wolke",
+            name: "ALLES WIRD WOLKE",
+            intro: "2026 <br> Artist-in-Residence, 1 September–1 October 2026<br>Kunsthalle Kleinschönach, Germany",
+            groups: [
+                {
+                    name: "ALLES WIRD WOLKE",
+                    intro: "Eine warme Ecke · Gegenüber · Fenster · Ohne Titel<br>2026",
+                    concept: allesWirdWolkeConcept,
+                    images: [
+                        "selectedphoto/alles-wird-wolke/aw-01-01.webp",
+                        "selectedphoto/alles-wird-wolke/aw-01-02.webp",
+                        "selectedphoto/alles-wird-wolke/aw-01-03.webp",
+                        "selectedphoto/alles-wird-wolke/aw-01-04.webp",
+                        "selectedphoto/alles-wird-wolke/aw-01-05.webp",
+                        "selectedphoto/alles-wird-wolke/aw-01-06.webp",
+                        "selectedphoto/alles-wird-wolke/aw-01-07.webp"
+                    ]
+                },
+                {
+                    name: "10 ZENTIMETER",
+                    intro: "2026<br>Glue, nylon thread, color pigments, plastic gloves<br>3154 × 10 cm",
+                    concept: allesWirdWolkeConcept,
+                    images: [
+                        "selectedphoto/alles-wird-wolke/aw-02-01.webp",
+                        "selectedphoto/alles-wird-wolke/aw-02-02.webp",
+                        "selectedphoto/alles-wird-wolke/aw-02-03.webp",
+                        "selectedphoto/alles-wird-wolke/aw-02-04.webp",
+                        "selectedphoto/alles-wird-wolke/aw-02-05.webp"
+                    ]
+                },
+                {
+                    name: "DIE WOLKEN FLICKEN",
+                    intro: "2026<br>Painting and performance, photographic documentation",
+                    concept: allesWirdWolkeConcept,
+                    images: [
+                        "selectedphoto/alles-wird-wolke/aw-03-01.webp",
+                        "selectedphoto/alles-wird-wolke/aw-03-02.webp",
+                        "selectedphoto/alles-wird-wolke/aw-03-03.webp",
+                        "selectedphoto/alles-wird-wolke/aw-03-04.webp"
+                    ]
+                },
+                {
+                    name: "WOLKENRÜCKSEITE",
+                    intro: "2026<br>Glue, nylon thread, color pigments, iron frame<br>120 × 120 × 20 cm",
+                    concept: allesWirdWolkeConcept,
+                    images: [
+                        "selectedphoto/alles-wird-wolke/aw-04-01.webp",
+                        "selectedphoto/alles-wird-wolke/aw-04-02.webp",
+                        "selectedphoto/alles-wird-wolke/aw-04-03.webp"
+                    ]
+                },
+                {
+                    name: "JA UND NEIN",
+                    intro: "2026<br>Glue, nylon thread, color pigments<br>23 × 23 × 31 cm",
+                    concept: allesWirdWolkeConcept,
+                    images: [
+                        "selectedphoto/alles-wird-wolke/aw-05-01.webp",
+                        "selectedphoto/alles-wird-wolke/aw-05-02.webp",
+                        "selectedphoto/alles-wird-wolke/aw-05-03.webp"
+                    ]
+                }
+            ]
+        },
         {
             id: "fallen-leaves-return-to-roots",
             name: "FALLEN LEAVES RETURN TO ROOTS",
@@ -326,6 +392,12 @@ const siteData = {
 
     // 新闻列表
     news: [
+            {
+                title: "Alles wird Wolke, Kunsthalle Kleinschönach",
+                location: "Kleinschönach, Germany",
+                time: "01 September – 01 October 2026",
+                details: "Artist-in-Residence and Werkschau at Kunsthalle Kleinschönach.<br><a href='https://kunsthalle-kleinschoenach.de/stipendium/' target='_blank' rel='noopener noreferrer'>kunsthalle-kleinschoenach.de/stipendium</a>"
+            },
             {
                 title: "Fallen Leaves return to roots, Gallery of Academy, AdBK, Munich",
                 time: "17th October → 31th October 2025",

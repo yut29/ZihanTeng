@@ -8,6 +8,18 @@ let currentLbWorkId = null;
 let currentLbIndex = 0;       
 let activeLayerNum = 1;       
 let currentViewingWorkId = null;
+let currentWorkGroupIdx = 0;
+
+// 只缓存当前页面即将用到的图片，避免一次性下载整个作品集。
+const imagePreloadCache = new Set();
+
+function preloadImage(src) {
+    if (!src || imagePreloadCache.has(src)) return;
+    imagePreloadCache.add(src);
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = src;
+}
 
 // 工具函数：获取文字
 function getText(content) {
@@ -96,6 +108,7 @@ function initFirstBackground() {
     layer1.style.backgroundImage = `url('${siteData.backgrounds[0]}')`;
     layer1.classList.add('active');
     activeLayerNum = 1; bgIdx = 0; 
+    preloadImage(siteData.backgrounds[1]);
 }
 
 function startBackgroundTimer() {
@@ -119,6 +132,7 @@ function playNextBackground() {
         activeLayer.classList.remove('active');
         activeLayerNum = nextLayerNum;
         bgIdx = nextIdx; 
+        preloadImage(siteData.backgrounds[(nextIdx + 1) % siteData.backgrounds.length]);
     };
     imgLoader.onerror = () => { bgIdx = nextIdx; };
 }
@@ -209,7 +223,18 @@ function switchWork(direction) {
     showWorkDetail(works[newIndex].id);
 }
 
-function showWorkDetail(id, updateHistory = true) {
+function getActiveWorkMedia(work) {
+    if (work.groups && work.groups.length > 0) {
+        return work.groups[currentWorkGroupIdx] || work.groups[0];
+    }
+    return work;
+}
+
+function showWorkGroup(id, groupIndex) {
+    showWorkDetail(id, false, groupIndex);
+}
+
+function showWorkDetail(id, updateHistory = true, groupIndex = 0) {
     const work = siteData.works.find(w => w.id === id);
     if(!work) return;
 
@@ -231,26 +256,45 @@ function showWorkDetail(id, updateHistory = true) {
     }
     
     currentSlideIdx = 0;
+    currentWorkGroupIdx = work.groups && work.groups.length
+        ? Math.max(0, Math.min(groupIndex, work.groups.length - 1))
+        : 0;
     
     const name = getText(work.name);
-    const intro = getText(work.intro);
-    const concept = getText(work.concept);
+    const media = getActiveWorkMedia(work);
+    const intro = getText(media.intro || work.intro);
+    const concept = getText(media.concept || work.concept);
+    const groupName = work.groups ? getText(media.name) : '';
+    const works = siteData.works || [];
+    const workIndex = works.findIndex(item => item.id === id);
+    const previousProject = works[(workIndex - 1 + works.length) % works.length];
+    const nextProject = works[(workIndex + 1) % works.length];
     
     const prevIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square"><polyline points="15 18 9 12 15 6"></polyline></svg>`;
     const nextIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
     const closeButtonIcon = `<svg class="btn-holes" viewBox="0 0 24 24"><circle cx="9" cy="9" r="1.5" fill="currentColor"/><circle cx="15" cy="9" r="1.5" fill="currentColor"/><circle cx="9" cy="15" r="1.5" fill="currentColor"/><circle cx="15" cy="15" r="1.5" fill="currentColor"/></svg><svg class="btn-cross" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
 
-    const hasImages = work.images && work.images.length > 0;
-    const mainImgSrc = hasImages ? work.images[0] : '';
+    const hasImages = media.images && media.images.length > 0;
+    const mainImgSrc = hasImages ? media.images[0] : '';
     let dotsHtml = '';
     let controlsHtml = '';
+    let groupsHtml = '';
     
-    if (hasImages && work.images.length > 1) {
-        dotsHtml = '<div class="slider-dots">';
-        work.images.forEach((_, idx) => {
-            dotsHtml += `<span class="dot ${idx===0?'active':''}" onclick="goToSlide('${id}', ${idx})"></span>`;
+    if (work.groups && work.groups.length > 0) {
+        groupsHtml = '<div class="work-group-nav" aria-label="Work groups">';
+        work.groups.forEach((group, idx) => {
+            const number = String(idx + 1).padStart(2, '0');
+            groupsHtml += `<button class="group-tab ${idx === currentWorkGroupIdx ? 'active' : ''}" onclick="showWorkGroup('${id}', ${idx})" title="${getText(group.name)}">${number}</button>`;
         });
-        dotsHtml += '</div>';
+        groupsHtml += '</div>';
+    }
+
+    if (hasImages && media.images.length > 1) {
+        dotsHtml = `<div class="slider-meta"><span class="image-counter">IMAGE <span class="image-counter-current">01</span> / ${String(media.images.length).padStart(2, '0')}</span><div class="slider-dots" aria-label="Image selection">`;
+        media.images.forEach((_, idx) => {
+            dotsHtml += `<span class="dot ${idx===0?'active':''}" onclick="goToSlide('${id}', ${idx})" title="Image ${idx + 1}"></span>`;
+        });
+        dotsHtml += '</div></div>';
 
         controlsHtml = `<div class="slider-controls-row"><div class="nav-btn nav-prev" onclick="changeSlide('${id}', -1)">${prevIcon}</div><div class="nav-btn nav-next" onclick="changeSlide('${id}', 1)">${nextIcon}</div></div>`;
     }
@@ -258,7 +302,7 @@ function showWorkDetail(id, updateHistory = true) {
     const imageHtml = hasImages ? `
         <div class="media-wrapper">
             <div class="img-box">
-                <img id="main-slide" src="${mainImgSrc}" onclick="openLightbox('${id}')">
+                <img id="main-slide" src="${mainImgSrc}" alt="${groupName || name}" decoding="async" fetchpriority="high" onclick="openLightbox('${id}')">
                 ${controlsHtml}
             </div>
             ${dotsHtml}
@@ -268,24 +312,31 @@ function showWorkDetail(id, updateHistory = true) {
         <div class="close-btn" onclick="showWorksList()">
             ${closeButtonIcon}
         </div>
-        <div class="work-switch-btn work-prev" onclick="switchWork(-1)" title="Previous Work">
-            <svg viewBox="0 0 50 50"><line x1="45" y1="25" x2="5" y2="25"></line><polyline points="15 15 5 25 15 35"></polyline></svg>
-        </div>
-        <div class="work-switch-btn work-next" onclick="switchWork(1)" title="Next Work">
-            <svg viewBox="0 0 50 50"><line x1="5" y1="25" x2="45" y2="25"></line><polyline points="35 15 45 25 35 35"></polyline></svg>
-        </div>
         <div class="detail-layout">
-            <h2 class="detail-title">${name}</h2>
+            <h2 class="detail-title">${name}${work.subtitle ? `<span class="detail-subtitle">${getText(work.subtitle)}</span>` : ''}</h2>
+            ${groupsHtml}
             <div class="detail-content-row">
                 <div class="text-col">
+                    ${groupName ? `<h3 class="group-title">${groupName}</h3><span class="exhibition-meta">${getText(work.intro)}</span>` : ''}
                     <span class="intro">${intro}</span>
                     <div class="concept">${concept}</div>
                 </div>
                 <div class="media-col">${imageHtml}</div>
             </div>
+            <div class="work-switch-nav" aria-label="Work navigation">
+                <div class="work-switch-btn work-prev" onclick="switchWork(-1)" title="Previous work: ${getText(previousProject.name)}">
+                    <span class="work-switch-label">← PREVIOUS WORK</span>
+                    <span class="work-switch-title">${getText(previousProject.name)}</span>
+                </div>
+                <div class="work-switch-btn work-next" onclick="switchWork(1)" title="Next work: ${getText(nextProject.name)}">
+                    <span class="work-switch-label">NEXT WORK →</span>
+                    <span class="work-switch-title">${getText(nextProject.name)}</span>
+                </div>
+            </div>
         </div>`;
 
-    if(hasImages && work.images.length > 1) {
+    if(hasImages && media.images.length > 1) {
+        preloadImage(media.images[1]);
         slideTimer = setInterval(() => changeSlide(id, 1), 3000);
         initInlineSwipe(id);
     }
@@ -336,17 +387,20 @@ function handleSwipe(callback) {
 
 function changeSlide(id, dir) {
     const work = siteData.works.find(w => w.id === id);
-    if(!work || !work.images || work.images.length === 0) return;
-    currentSlideIdx = (currentSlideIdx + dir + work.images.length) % work.images.length;
-    updateSlideView(work);
+    const media = work ? getActiveWorkMedia(work) : null;
+    if(!media || !media.images || media.images.length === 0) return;
+    currentSlideIdx = (currentSlideIdx + dir + media.images.length) % media.images.length;
+    updateSlideView(media);
 }
 
 function goToSlide(id, index) {
     const work = siteData.works.find(w => w.id === id);
+    const media = work ? getActiveWorkMedia(work) : null;
+    if (!media) return;
     currentSlideIdx = index;
     if (slideTimer) clearInterval(slideTimer);
     slideTimer = setInterval(() => changeSlide(id, 1), 3000);
-    updateSlideView(work);
+    updateSlideView(media);
 }
 
 function updateSlideView(work) {
@@ -363,8 +417,10 @@ function updateSlideView(work) {
         
         tempImg.onload = () => {
             img.src = nextSrc; 
+            img.alt = getText(work.name);
             // 淡入
             requestAnimationFrame(() => { img.style.opacity = "1"; });
+            preloadImage(work.images[(currentSlideIdx + 1) % work.images.length]);
         };
     }, 300); 
     
@@ -372,28 +428,37 @@ function updateSlideView(work) {
     dots.forEach((dot, idx) => {
         dot.classList.toggle('active', idx === currentSlideIdx);
     });
+
+    const counter = document.querySelector('.image-counter-current');
+    if (counter) counter.textContent = String(currentSlideIdx + 1).padStart(2, '0');
 }
 
 function openLightbox(workId) {
     currentLbWorkId = workId;
     currentLbIndex = currentSlideIdx; 
     const work = siteData.works.find(w => w.id === workId);
-    if(!work || !work.images) return;
+    const media = work ? getActiveWorkMedia(work) : null;
+    if(!media || !media.images) return;
     const lb = document.getElementById('lightbox');
     const img = document.getElementById('lightbox-img');
-    img.src = work.images[currentLbIndex];
+    img.src = media.images[currentLbIndex];
+    img.alt = getText(media.name || work.name);
     lb.style.display = 'flex';
+    preloadImage(media.images[(currentLbIndex + 1) % media.images.length]);
 }
 
 function changeLightboxSlide(dir) {
     const work = siteData.works.find(w => w.id === currentLbWorkId);
-    if(!work) return;
-    currentLbIndex = (currentLbIndex + dir + work.images.length) % work.images.length;
+    const media = work ? getActiveWorkMedia(work) : null;
+    if(!media || !media.images) return;
+    currentLbIndex = (currentLbIndex + dir + media.images.length) % media.images.length;
     const img = document.getElementById('lightbox-img');
     img.style.opacity = 0.5;
     setTimeout(() => {
-        img.src = work.images[currentLbIndex];
+        img.src = media.images[currentLbIndex];
+        img.alt = getText(media.name || work.name);
         img.onload = () => { img.style.opacity = 1; };
+        preloadImage(media.images[(currentLbIndex + 1) % media.images.length]);
     }, 200);
 }
 
@@ -442,16 +507,16 @@ function showContact(updateHistory = true) {
                 <div class="privacy-scroll-area">
                     <div class="privacy-lang-section">
                         <h3>Datenschutzerklärung</h3>
-                        <p><strong>1. Verantwortliche Person</strong><br>Zihan Teng, Künstler*in<br>E-Mail: info@zihanteng.com</p>
+                        <p><strong>1. Verantwortliche Person</strong><br>Zihan Teng, Künstler*in<br>E-Mail: zihantengstudio@gmail.com</p>
                         <p><strong>2. Zugriffsdaten</strong><br>Beim Besuch werden Server-Logfiles (IP, Browser) automatisch erfasst.</p>
                         <p><strong>3. Kontaktaufnahme</strong><br>Per E-Mail gesendete Daten werden nur zur Bearbeitung Ihrer Anfrage gespeichert.</p>
                         <p><strong>4. Externe Links</strong><br>Keine Verantwortung für Datenschutzpraktiken externer Links.</p>
-                        <p><strong>5. Ihre Rechte</strong><br>Recht auf Auskunft, Berichtigung oder Löschung unter info@zihanteng.com.</p>
+                        <p><strong>5. Ihre Rechte</strong><br>Recht auf Auskunft, Berichtigung oder Löschung unter zihantengstudio@gmail.com.</p>
                     </div>
                     <hr style="border:0; border-top:1px solid #333; margin: 30px 0;">
                     <div class="privacy-lang-section">
                         <h3>Privacy Policy</h3>
-                        <p><strong>1. Data Controller</strong><br>Zihan Teng, Artist<br>Email: info@zihanteng.com</p>
+                        <p><strong>1. Data Controller</strong><br>Zihan Teng, Artist<br>Email: zihantengstudio@gmail.com</p>
                         <p><strong>2. Data Collection</strong><br>Technical info (IP, browser) is collected automatically for security purposes.</p>
                         <p><strong>3. Contact</strong><br>Data sent via email is used solely to process your request.</p>
                         <p><strong>4. External Links</strong><br>Not responsible for external platforms like Instagram.</p>

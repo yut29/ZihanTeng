@@ -9,6 +9,7 @@ let currentLbIndex = 0;
 let activeLayerNum = 1;       
 let currentViewingWorkId = null;
 let currentWorkGroupIdx = 0;
+let backgroundInitialized = false;
 
 // 只缓存当前页面即将用到的图片，避免一次性下载整个作品集。
 const imagePreloadCache = new Set();
@@ -89,15 +90,21 @@ window.onload = () => {
         return;
     }
     
-    initFirstBackground();
-    startBackgroundTimer();
+    const urlParams = new URLSearchParams(window.location.search);
+    const opensWorkDirectly = urlParams.has('work');
+
+    if (opensWorkDirectly) {
+        document.body.classList.add('direct-work');
+    } else {
+        initFirstBackground();
+        startBackgroundTimer();
+    }
     initLightboxSwipe(); 
 
-    // 延迟加载，配合开场动画
+    // 直接访问作品时立即显示；首页仍保留开场动画。
     setTimeout(() => { 
-        // 【关键】页面加载完成后，根据 URL 决定显示哪个页面
         handleRouting(); 
-    }, 2500);
+    }, opensWorkDirectly ? 0 : 2500);
 };
 
 /* ================= 1. 背景轮播逻辑 ================= */
@@ -108,6 +115,7 @@ function initFirstBackground() {
     layer1.style.backgroundImage = `url('${siteData.backgrounds[0]}')`;
     layer1.classList.add('active');
     activeLayerNum = 1; bgIdx = 0; 
+    backgroundInitialized = true;
     preloadImage(siteData.backgrounds[1]);
 }
 
@@ -161,6 +169,7 @@ function exitDetailMode() {
     }, 50);
 
     if(slideTimer) clearInterval(slideTimer);
+    if(!backgroundInitialized) initFirstBackground();
     startBackgroundTimer();
     currentViewingWorkId = null;
 }
@@ -337,7 +346,6 @@ function showWorkDetail(id, updateHistory = true, groupIndex = 0) {
 
     if(hasImages && media.images.length > 1) {
         preloadImage(media.images[1]);
-        slideTimer = setInterval(() => changeSlide(id, 1), 3000);
         initInlineSwipe(id);
     }
 }
@@ -399,7 +407,6 @@ function goToSlide(id, index) {
     if (!media) return;
     currentSlideIdx = index;
     if (slideTimer) clearInterval(slideTimer);
-    slideTimer = setInterval(() => changeSlide(id, 1), 3000);
     updateSlideView(media);
 }
 

@@ -54,6 +54,11 @@
             overflow-x: hidden;
         }
 
+        /* 直接打开作品链接时跳过开场动画，避免等待无关背景图片。 */
+        body.direct-work #splash { display: none; }
+        body.direct-work aside,
+        body.direct-work main { animation: none; opacity: 1; }
+
         /* 1. 背景容器 */
         #bg-container {
             position: fixed; inset: 0; z-index: -1;

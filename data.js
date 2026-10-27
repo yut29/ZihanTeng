@@ -5,19 +5,19 @@ const allesWirdWolkeConcept = "Während meines einmonatigen Artist-in-Residence-
 const siteData = {
     // 背景图片列表
     backgrounds: [
-        "selectedphoto/bg1.JPG",
-        "selectedphoto/bg2.JPG",
-        "selectedphoto/bg4.JPG",
-        "selectedphoto/bg3.jpg",
-        "selectedphoto/bg5.jpg",
-        "selectedphoto/bg6.JPG",
-        "selectedphoto/bg7.JPG",
-        "selectedphoto/bg8.JPG",
-        "selectedphoto/bg9.JPG",
-        "selectedphoto/bg10.JPG",
-        "selectedphoto/bg11.JPG",
-        "selectedphoto/bg12.JPG",
-        "selectedphoto/bg13.JPG",
+        "selectedphoto/backgrounds/bg-01.webp",
+        "selectedphoto/backgrounds/bg-02.webp",
+        "selectedphoto/backgrounds/bg-03.webp",
+        "selectedphoto/backgrounds/bg-04.webp",
+        "selectedphoto/backgrounds/bg-05.webp",
+        "selectedphoto/backgrounds/bg-06.webp",
+        "selectedphoto/backgrounds/bg-07.webp",
+        "selectedphoto/backgrounds/bg-08.webp",
+        "selectedphoto/backgrounds/bg-09.webp",
+        "selectedphoto/backgrounds/bg-10.webp",
+        "selectedphoto/backgrounds/bg-11.webp",
+        "selectedphoto/backgrounds/bg-12.webp",
+        "selectedphoto/backgrounds/bg-13.webp",
     ],
 
     // 作品列表

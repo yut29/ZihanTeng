@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Silk Trace — Zihan Teng</title>
+    <link rel="icon" type="image/png" href="../favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  </head>
+  <body>
+    <main id="app">
+      <div id="ambientBg" aria-hidden="true"></div>
+
+      <section id="stage" aria-label="Interactive silk canvas"></section>
+
+      <div class="title-badge">
+        <h1 aria-hidden="true">Silk Trace</h1>
+        <a class="back-link" href="../">← Zihan Teng</a>
+        <div class="swatches" id="sprayColor" role="radiogroup" aria-label="Thread color">
+          <button type="button" class="swatch active" data-color="white" style="--sw: #ffffff" aria-label="White" aria-pressed="true"></button>
+          <button type="button" class="swatch" data-color="warm" style="--sw: #ffda90" aria-label="Amber" aria-pressed="false"></button>
+          <button type="button" class="swatch" data-color="blue" style="--sw: #a6d6ff" aria-label="Blue" aria-pressed="false"></button>
+          <button type="button" class="swatch" data-color="pink" style="--sw: #ffb8d6" aria-label="Blush" aria-pressed="false"></button>
+          <button type="button" class="swatch" data-color="green" style="--sw: #b8ffe0" aria-label="Mint" aria-pressed="false"></button>
+        </div>
+      </div>
+
+      <div class="camera-slot" id="cameraSlot" aria-label="Camera preview">
+        <button id="toggleCamera" type="button" class="camera-toggle">Camera</button>
+      </div>
+
+      <aside class="hud" aria-label="Status and controls">
+        <p id="status">Move a finger or your mouse to leave a trace — pinch to draw, five fingers to spray.</p>
+        <div class="hud-row">
+          <button id="toggleSound" type="button">Sound</button>
+          <button id="clearCanvas" type="button">Clear</button>
+        </div>
+      </aside>
+
+      <div class="scale-note" aria-label="Musical scale note">
+        <strong>宫商角徵羽</strong>
+        <span>Gong·Shang·Jue·Zhi·Yu — the pentatonic scale (1 2 3 5 6 / do re mi sol la) driving every pluck.</span>
+      </div>
+    </main>
+
+    <script>
+      // Ambient background: a pre-blurred, downscaled copy of bg7 (one of
+      // the main site's artwork photos, see data.js `backgrounds`) — blurred
+      // at build time instead of via CSS filter, both for performance (the
+      // source is a 5MB photo) and because filter+position:fixed did not
+      // composite reliably here.
+      document.getElementById("ambientBg").style.backgroundImage =
+        'url("../selectedphoto/bg7.JPG")';
+    </script>
+    <script src="./src/config.js"></script>
+    <script src="./src/sound.js"></script>
+    <script src="./src/input.js"></script>
+    <script src="./src/silk.js"></script>
+    <script src="./src/sketch.js"></script>
+  </body>
+</html>
